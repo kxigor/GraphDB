@@ -1,4 +1,3 @@
-
 add_executable(graph_database_main main.cpp)
 
 add_subdirectory(storage)
