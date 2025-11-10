@@ -12,7 +12,7 @@
 #include "utils/storage_errors.hpp"
 #include "utils/storage_type_list.hpp"
 
-/*TODO: всем похуй на payloadinfo_type, а надо написать*/
+/*TODO: payloadinfo_type  надо написать*/
 
 namespace storage::files {
 
