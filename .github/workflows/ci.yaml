@@ -1,0 +1,147 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  LLVM_VERSION: 22
+  GCC_VERSION: 15
+
+jobs:
+  build-and-test:
+    name: "${{ matrix.preset }} (${{ matrix.compiler }})"
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: dev-debug-asan
+            compiler: clang
+            cc: clang
+            cxx: clang++
+
+          - preset: dev-debug-asan
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+
+          - preset: ci-tests-release
+            compiler: clang
+            cc: clang
+            cxx: clang++
+
+          - preset: ci-tests-release
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ===== System dependencies =====
+      - name: Install base deps + Boost + fmt + GTest
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build pkg-config python3 \
+            libboost-all-dev libfmt-dev libgtest-dev libgmock-dev
+          # GTest ships as source on Ubuntu; build & install.
+          cd /usr/src/googletest
+          sudo cmake -B build -G Ninja
+          sudo cmake --build build
+          sudo cmake --install build
+
+      # ===== LLVM/Clang (needed for FormatCheck/TidyCheck even with GCC) =====
+      - name: Install LLVM ${{ env.LLVM_VERSION }}
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh ${{ env.LLVM_VERSION }} all
+
+          sudo update-alternatives --install /usr/bin/clang-format clang-format \
+            /usr/bin/clang-format-${{ env.LLVM_VERSION }} 100
+          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy \
+            /usr/bin/clang-tidy-${{ env.LLVM_VERSION }} 100
+
+      - name: Setup Clang ${{ env.LLVM_VERSION }} as compiler
+        if: matrix.compiler == 'clang'
+        run: |
+          sudo update-alternatives --install /usr/bin/clang clang \
+            /usr/bin/clang-${{ env.LLVM_VERSION }} 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ \
+            /usr/bin/clang++-${{ env.LLVM_VERSION }} 100
+
+      - name: Setup GCC ${{ env.GCC_VERSION }} as compiler
+        if: matrix.compiler == 'gcc'
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update
+          sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
+
+          sudo update-alternatives --install /usr/bin/gcc gcc \
+            /usr/bin/gcc-${{ env.GCC_VERSION }} 100
+          sudo update-alternatives --install /usr/bin/g++ g++ \
+            /usr/bin/g++-${{ env.GCC_VERSION }} 100
+
+      - name: Verify toolchain
+        run: |
+          echo "=== Compiler ==="
+          ${{ matrix.cxx }} --version
+          echo "=== Clang Tools ==="
+          clang-format --version
+          clang-tidy --version
+
+      # ===== CMake Configure / Build / Test =====
+      - name: Configure
+        run: |
+          cmake --preset ${{ matrix.preset }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_CXX_FLAGS="-Wno-unknown-warning-option -Wno-unused-command-line-argument"
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --verbose
+        env:
+          ASAN_OPTIONS: "detect_leaks=1:abort_on_error=1:print_stats=1"
+          UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
+
+      - name: Upload artifacts
+        if: matrix.preset == 'ci-tests-release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.preset }}-${{ matrix.compiler }}
+          path: |
+            build/${{ matrix.preset }}/bin/*
+          if-no-files-found: warn
+          retention-days: 7
+
+  docker-image:
+    name: "Docker image build"
+    runs-on: ubuntu-24.04
+    needs: build-and-test
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build builder stage
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: builder
+          push: false
+          tags: graphdb:builder
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,41 +1,70 @@
-# Prerequisites
-*.d
+# =====================================================================
+# Build artefacts
+# =====================================================================
+build/
+out/
 
-# Compiled Object files
+# compile_commands.json is generated per-build; if you symlink it into the
+# repo root for clangd, the symlink should stay out of git.
+compile_commands.json
+
+# Coverage outputs (gcov/lcov)
+*.gcda
+*.gcno
+*.gcov
+coverage_report/
+*.info
+
+# =====================================================================
+# CMake
+# =====================================================================
+# Personal preset overrides — must not leak into the repo.
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+_deps/
+
+# =====================================================================
+# Compiler / linker leftovers
+# =====================================================================
+*.d
 *.slo
 *.lo
 *.o
 *.obj
-
-# Precompiled Headers
 *.gch
 *.pch
-
-# Linker files
 *.ilk
-
-# Debugger Files
 *.pdb
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
-
-# Executables
 *.exe
 *.out
 *.app
-
-# debug information files
 *.dwo
+
+# =====================================================================
+# Editor / IDE
+# =====================================================================
+.vscode/
+.idea/
+.cache/
+.clangd/
+*.swp
+*.swo
+*~
+
+# =====================================================================
+# OS noise
+# =====================================================================
+.DS_Store
+Thumbs.db

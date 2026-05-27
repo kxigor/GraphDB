@@ -1,0 +1,2120 @@
+Test project /home/garik/PROJECTS/GraphDB/build/dev-debug-asan
+    Start 1: FormatCheck
+1/6 Test #1: FormatCheck ......................***Failed    0.58 sec
+Checking format with config: /home/garik/PROJECTS/GraphDB/.clang-format
+--- /home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp	2026-05-27 13:34:31.354794260 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.071139928 +0300
+@@ -1,12 +1,14 @@
+ 
+ #include "query/handler/query_handler.hpp"
+ 
+-using handler = void(*)();
++using handler = void (*)();
+ 
+-static std::unordered_map<std::string, storage::manager::StorageManager> databases;
++static std::unordered_map<std::string, storage::manager::StorageManager>
++    databases;
+ 
+ static const std::unordered_map<std::string, handler> handlers = {
+-    {"create", +[]() {
++    {"create",
++     +[]() {
+        std::string database;
+        std::cin >> database;
+ 
+@@ -17,34 +19,35 @@
+ 
+        databases.emplace(database, storage::manager::StorageManager(database));
+        databases.at(database).create_db();
+-    }},
+-    {"destroy", +[]() {
++     }},
++    {"destroy",
++     +[]() {
+        std::string database;
+        std::cin >> database;
+ 
+        if (not databases.contains(database)) {
+-         std::cerr << "no database named `"<< database << "`\n";
++         std::cerr << "no database named `" << database << "`\n";
+          return;
+        }
+ 
+        databases.at(database).remove_db();
+        databases.erase(database);
+-    }},
+-    {"launch", +[]() {
++     }},
++    {"launch",
++     +[]() {
+        std::string database;
+        std::cin >> database;
+ 
+        if (not databases.contains(database)) {
+-         std::cerr << "no database named `"<< database << "`\n";
++         std::cerr << "no database named `" << database << "`\n";
+          return;
+        }
+ 
+        QueryHandler::Launch(database, databases.at(database));
+        QueryHandler::HandleQueries();
+        QueryHandler::Finish();
+-    }},
+-    {"exit", +[]() { exit(EXIT_SUCCESS); }}
+-};
++     }},
++    {"exit", +[]() { exit(EXIT_SUCCESS); }}};
+ 
+ static void HandleQuery(const std::string &query);
+ 
+@@ -54,7 +57,7 @@
+     std::cin >> query;
+     HandleQuery(query);
+   }
+-} catch(...) {
++} catch (...) {
+   QueryHandler::Finish();
+ 
+   std::cerr << "internal error\n";
+Format violation: /home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp
+--- /home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp	2026-05-27 13:34:31.356109581 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.088140589 +0300
+@@ -122,7 +122,9 @@
+       std::cout << "}\n";
+     }
+ 
+-    void operator()(const auto&) { throw NotImplemented("not implemented query"); }
++    void operator()(const auto&) {
++      throw NotImplemented("not implemented query");
++    }
+ 
+    private:
+     Processor& processor_;
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp	2026-05-27 13:34:31.356190903 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.118141755 +0300
+@@ -5,25 +5,17 @@
+ #include "parser/ast.hpp"
+ 
+ struct NotImplemented : std::exception {
+-  NotImplemented(const std::string &str) {
+-    what_ = "Not implemented: " + str;
+-  }
++  NotImplemented(const std::string& str) { what_ = "Not implemented: " + str; }
+ 
+-  virtual const char* what() const noexcept override {
+-    return what_.c_str();
+-  }
++  virtual const char* what() const noexcept override { return what_.c_str(); }
+ 
+   std::string what_;
+ };
+ 
+ struct InvalidRequest : std::exception {
+-  InvalidRequest(const std::string &str) {
+-    what_ = "Invalid request: " + str;
+-  }
++  InvalidRequest(const std::string& str) { what_ = "Invalid request: " + str; }
+ 
+-  virtual const char* what() const noexcept override {
+-    return what_.c_str();
+-  }
++  virtual const char* what() const noexcept override { return what_.c_str(); }
+ 
+   std::string what_;
+ };
+@@ -100,6 +92,5 @@
+     (std::invoke(std::forward<F>(func),
+                  std::get<Is>(std::forward<Tuple>(tuple))),
+      ...);
+-  }
+-  (std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>());
++  }(std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>());
+ }
+\ В конце файла нет новой строки
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp	2026-05-27 13:34:31.356331580 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.134142377 +0300
+@@ -48,14 +48,12 @@
+     edge_fields.add_field(edge.second, edge.first);
+   }
+ 
+-  return storage::manager::GraphInfo {
+-    .graph_name = query.graph.name,
+-    .key_type = query.graph.key_type,
+-    .vertex_names = vertex_fields.get_names(),
+-    .vertex_type = vertex_fields.get_type(),
+-    .edge_names = edge_fields.get_names(),
+-    .edge_type = edge_fields.get_type()
+-  };
++  return storage::manager::GraphInfo{.graph_name = query.graph.name,
++                                     .key_type = query.graph.key_type,
++                                     .vertex_names = vertex_fields.get_names(),
++                                     .vertex_type = vertex_fields.get_type(),
++                                     .edge_names = edge_fields.get_names(),
++                                     .edge_type = edge_fields.get_type()};
+ }
+ 
+ QueryHandler &QueryHandler::GetInstance() {
+@@ -63,7 +61,8 @@
+   return handler;
+ }
+ 
+-void QueryHandler::Launch(const fs::path &database, storage::manager::StorageManager &manager) {
++void QueryHandler::Launch(const fs::path &database,
++                          storage::manager::StorageManager &manager) {
+   static const fs::path current = "./";
+ 
+   auto &handler = GetInstance();
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp
+--- /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp	2026-05-27 13:34:31.356331580 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.150143000 +0300
+@@ -5,9 +5,9 @@
+ #include <iostream>
+ #include <unordered_map>
+ 
+-#include "../parser/query_parser.hpp"
+ #include "../../storage/manager/storage_manager.hpp"
+ #include "../interprocess/interprocess.hpp"
++#include "../parser/query_parser.hpp"
+ 
+ namespace fs = std::filesystem;
+ namespace bp = boost::process;
+@@ -15,16 +15,15 @@
+ 
+ class QueryHandler {
+  public:
+-  static void Launch(const fs::path &database, storage::manager::StorageManager &manager);
++  static void Launch(const fs::path &database,
++                     storage::manager::StorageManager &manager);
+   static void HandleQueries();
+   static void Finish();
+ 
+-  ~QueryHandler() {
+-    bi::named_mutex::remove(kMutexName);
+-  }
++  ~QueryHandler() { bi::named_mutex::remove(kMutexName); }
+ 
+  private:
+-  QueryHandler(): mutex_(bi::create_only, kMutexName) {}
++  QueryHandler() : mutex_(bi::create_only, kMutexName) {}
+ 
+   QueryHandler(const QueryHandler &) = delete;
+   QueryHandler(QueryHandler &&) = delete;
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp	2026-05-27 13:34:31.356518709 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.171143816 +0300
+@@ -218,9 +218,7 @@
+   }
+ };
+ 
+-using Query = boost::variant<ExitQuery  , ReturnQuery,
+-                             NewQuery   , DeleteQuery,
+-                             AddQuery   , MatchQuery,
+-                             RemoveQuery, UnmatchQuery,
++using Query = boost::variant<ExitQuery, ReturnQuery, NewQuery, DeleteQuery,
++                             AddQuery, MatchQuery, RemoveQuery, UnmatchQuery,
+                              UpdateQuery, SelectQuery>;
+ }  // namespace ast
+\ В конце файла нет новой строки
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp	2026-05-27 13:34:31.356518709 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.187144438 +0300
+@@ -11,7 +11,8 @@
+ 
+ BOOST_FUSION_ADAPT_STRUCT(ast::Match, from, edge, to);
+ 
+-BOOST_FUSION_ADAPT_STRUCT(ast::Graph, name, key_type, vertex_fields, edge_fields);
++BOOST_FUSION_ADAPT_STRUCT(ast::Graph, name, key_type, vertex_fields,
++                          edge_fields);
+ 
+ BOOST_FUSION_ADAPT_STRUCT(ast::ExitQuery);
+ 
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_def.hpp	2026-05-27 13:34:31.356518709 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.254147043 +0300
+@@ -4,64 +4,55 @@
+ 
+ // NOLINTBEGIN
+ namespace parser {
+-    const auto identifier_def     = x3::lexeme[+(x3::alnum | x3::char_('_'))];
+-    const auto quotted_string_def = x3::lexeme['"' >> *~x3::char_('"') >> '"'];
++const auto identifier_def = x3::lexeme[+(x3::alnum | x3::char_('_'))];
++const auto quotted_string_def = x3::lexeme['"' >> *~x3::char_('"') >> '"'];
+ 
+-    const auto location           = x3::lit("at") >> identifier;
++const auto location = x3::lit("at") >> identifier;
+ 
+-    const auto property_def       = identifier >> '=' >> quotted_string;
+-    const auto property_list_def  = '{' >> -(property % ',') >> '}';
++const auto property_def = identifier >> '=' >> quotted_string;
++const auto property_list_def = '{' >> -(property % ',') >> '}';
+ 
+-    const auto vertex_def         = '[' >> -quotted_string >> ']' >> property_list;
++const auto vertex_def = '[' >> -quotted_string >> ']' >> property_list;
+ 
+-    const auto edge_def           = property_list;
+-    const auto match_def          = vertex >> x3::lit("--") >> edge >> x3::lit("->") >> vertex;
++const auto edge_def = property_list;
++const auto match_def = vertex >> x3::lit("--") >> edge
++                       >> x3::lit("->") >> vertex;
+ 
+-    const auto graph_def          = identifier >> '{' >>
+-                                        base_type >> x3::lit("vertex") >> '{' >>
+-                                            -((base_type >> identifier) % ',') >>
+-                                        '}' >>
+-                                        x3::lit("edge") >> '{' >>
+-                                            -((base_type >> identifier) % ',') >>
+-                                        '}' >>
+-                                    '}';
++const auto graph_def = identifier >> '{' >> base_type >> x3::lit("vertex") >>
++                       '{' >> -((base_type >> identifier) % ',') >>
++                       '}' >> x3::lit("edge") >> '{' >>
++                       -((base_type >> identifier) % ',') >> '}' >> '}';
+ 
+-    const auto exit_query_def     = x3::lit("exit") >> x3::attr(ast::ExitQuery{});
++const auto exit_query_def = x3::lit("exit") >> x3::attr(ast::ExitQuery{});
+ 
+-    const auto new_query_def      = x3::lit("new")    >> graph;
+-    const auto delete_query_def   = x3::lit("delete") >> identifier;
++const auto new_query_def = x3::lit("new") >> graph;
++const auto delete_query_def = x3::lit("delete") >> identifier;
+ 
+-    const auto add_query_def      = x3::lit("add")   >> location >> vertex;
+-    const auto match_query_def    = x3::lit("match") >> location >> match;
++const auto add_query_def = x3::lit("add") >> location >> vertex;
++const auto match_query_def = x3::lit("match") >> location >> match;
+ 
+-    const auto remove_query_def   = x3::lit("remove")  >> location;
+-    const auto unmatch_query_def  = x3::lit("unmatch") >> location;
++const auto remove_query_def = x3::lit("remove") >> location;
++const auto unmatch_query_def = x3::lit("unmatch") >> location;
+ 
+-    const auto return_query_def   = x3::lit("return") >> location;
+-    const auto update_query_def   = x3::lit("update") >> location >> property_list; // TODO add update for edges
++const auto return_query_def = x3::lit("return") >> location;
++const auto update_query_def = x3::lit("update") >> location >>
++                              property_list;  // TODO add update for edges
+ 
+-    const auto select_query_def   = x3::lit("select") >> location >> (match | vertex); // TODO more complex select(long mathces, bfs, etc.)
++const auto select_query_def =
++    x3::lit("select") >> location >>
++    (match | vertex);  // TODO more complex select(long mathces, bfs, etc.)
+ 
+-    const auto query_parser_def   = exit_query   | return_query
+-                                  | new_query    | delete_query
+-                                  | add_query    | match_query
+-                                  | remove_query | unmatch_query
+-                                  | update_query | select_query;
++const auto query_parser_def =
++    exit_query | return_query | new_query | delete_query | add_query |
++    match_query | remove_query | unmatch_query | update_query | select_query;
+ }  // namespace parser
+ 
+ namespace parser {
+-    BOOST_SPIRIT_DEFINE(identifier, quotted_string,
+-                        property, property_list,
+-                        vertex, edge, match, graph,
+-                        exit_query, return_query,
+-                        new_query, delete_query,
+-                        add_query, match_query,
+-                        remove_query, unmatch_query,
+-                        update_query, select_query,
+-                        query_parser);
+-
+-    query_parser_type parser() {
+-        return query_parser;
+-    }
++BOOST_SPIRIT_DEFINE(identifier, quotted_string, property, property_list, vertex,
++                    edge, match, graph, exit_query, return_query, new_query,
++                    delete_query, add_query, match_query, remove_query,
++                    unmatch_query, update_query, select_query, query_parser);
++
++query_parser_type parser() { return query_parser; }
+ }  // namespace parser
+ // NOLINTEND
+\ В конце файла нет новой строки
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_def.hpp
+--- /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp	2026-05-27 13:34:31.356518709 +0300
++++ /dev/fd/63	2026-05-27 14:11:59.272147743 +0300
+@@ -7,43 +7,38 @@
+ 
+ // NOLINTBEGIN
+ namespace parser {
+-    struct BaseType: x3::symbols<ast::cpp_type> {
+-        BaseType() {
+-            add
+-            ("int"   , "int")
+-            ("bool"  , "bool")
+-            ("string", "std::string");
+-        }
+-    } base_type;
++struct BaseType : x3::symbols<ast::cpp_type> {
++  BaseType() { add("int", "int")("bool", "bool")("string", "std::string"); }
++} base_type;
+ 
+-    x3::rule<class identifier, std::string> identifier;
+-    x3::rule<class quotted_string, std::string> quotted_string;
++x3::rule<class identifier, std::string> identifier;
++x3::rule<class quotted_string, std::string> quotted_string;
+ 
+-    x3::rule<class property, ast::Property> property;
+-    x3::rule<class property_list, ast::PropertyList> property_list;
++x3::rule<class property, ast::Property> property;
++x3::rule<class property_list, ast::PropertyList> property_list;
+ 
+-    x3::rule<class vertex, ast::Vertex> vertex;
+-    x3::rule<class edge, ast::Edge> edge;
+-    x3::rule<class match, ast::Match> match;
++x3::rule<class vertex, ast::Vertex> vertex;
++x3::rule<class edge, ast::Edge> edge;
++x3::rule<class match, ast::Match> match;
+ 
+-    x3::rule<class graph, ast::Graph> graph;
++x3::rule<class graph, ast::Graph> graph;
+ 
+-    x3::rule<class exit_query, ast::ExitQuery> exit_query;
++x3::rule<class exit_query, ast::ExitQuery> exit_query;
+ 
+-    x3::rule<class new_query, ast::NewQuery> new_query;
+-    x3::rule<class delete_query, ast::DeleteQuery> delete_query;
++x3::rule<class new_query, ast::NewQuery> new_query;
++x3::rule<class delete_query, ast::DeleteQuery> delete_query;
+ 
+-    x3::rule<class add_query, ast::AddQuery> add_query;
+-    x3::rule<class match_query, ast::MatchQuery> match_query;
++x3::rule<class add_query, ast::AddQuery> add_query;
++x3::rule<class match_query, ast::MatchQuery> match_query;
+ 
+-    x3::rule<class remove_query, ast::RemoveQuery> remove_query;
+-    x3::rule<class unmatch_query, ast::UnmatchQuery> unmatch_query;
++x3::rule<class remove_query, ast::RemoveQuery> remove_query;
++x3::rule<class unmatch_query, ast::UnmatchQuery> unmatch_query;
+ 
+-    x3::rule<class return_query, ast::ReturnQuery> return_query;
+-    x3::rule<class update_query, ast::UpdateQuery> update_query;
++x3::rule<class return_query, ast::ReturnQuery> return_query;
++x3::rule<class update_query, ast::UpdateQuery> update_query;
+ 
+-    x3::rule<class select_query, ast::SelectQuery> select_query;
++x3::rule<class select_query, ast::SelectQuery> select_query;
+ 
+-    query_parser_type query_parser;
+-} // namespace parser
++query_parser_type query_parser;
++}  // namespace parser
+ // NOLINTEND
+\ В конце файла нет новой строки
+Format violation: /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp
+FAILED: Some files are not formatted correctly.
+
+    Start 2: TidyCheck
+2/6 Test #2: TidyCheck ........................***Failed    5.49 sec
+Running /usr/bin/clang-tidy-22 on 33 files using 32 threads...
+
+Error in /home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:2:10: error: 'query/handler/query_handler.hpp' file not found [clang-diagnostic-error]
+    2 | #include "query/handler/query_handler.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:6:74: error: variable 'databases' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+    6 | static std::unordered_map<std::string, storage::manager::StorageManager> databases;
+      |                                                                          ^
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:6:74: error: variable 'databases' is non-const and globally accessible, consider making it const [cppcoreguidelines-avoid-non-const-global-variables,-warnings-as-errors]
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:8:55: error: invalid case style for constant 'handlers' [readability-identifier-naming,-warnings-as-errors]
+    8 | static const std::unordered_map<std::string, handler> handlers = {
+      |                                                       ^~~~~~~~
+      |                                                       kHandlers
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:49:13: error: function 'HandleQuery' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+   49 | static void HandleQuery(const std::string &query);
+      |             ^
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:49:13: error: invalid case style for function 'HandleQuery' [readability-identifier-naming,-warnings-as-errors]
+   49 | static void HandleQuery(const std::string &query);
+      |             ^~~~~~~~~~~
+      |             handle_query
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:64:6: error: function 'HandleQuery' can be made static or moved into an anonymous namespace to enforce internal linkage [misc-use-internal-linkage,-warnings-as-errors]
+   64 | void HandleQuery(const std::string &query) {
+      |      ^
+      | static 
+/home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp:64:6: error: invalid case style for function 'HandleQuery' [readability-identifier-naming,-warnings-as-errors]
+   64 | void HandleQuery(const std::string &query) {
+      |      ^~~~~~~~~~~
+      |      handle_query
+Error while processing /home/garik/PROJECTS/GraphDB/apps/graphdb/main.cpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager_patterns.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager_patterns.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:9:20: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+    9 |   using key_type = typename Engine::key_type;
+      |                    ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:10:23: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   10 |   using vertex_type = typename Engine::vertex_type;
+      |                       ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:11:21: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   11 |   using edge_type = typename Engine::edge_type;
+      |                     ^~~~~~~~
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:5:10: error: 'parser/ast.hpp' file not found [clang-diagnostic-error]
+    5 | #include "parser/ast.hpp"
+      |          ^~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:9:5: error: 'what_' should be initialized in a member initializer of the constructor [cppcoreguidelines-prefer-member-initializer,-warnings-as-errors]
+    8 |   NotImplemented(const std::string &str) {
+      |                                          : what_("Not implemented: " + str)
+    9 |     what_ = "Not implemented: " + str;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:12:3: error: function 'what' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   12 |   virtual const char* what() const noexcept override {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:12:23: error: 'virtual' is redundant since the function is already declared 'override' [cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override,-warnings-as-errors]
+   12 |   virtual const char* what() const noexcept override {
+      |   ~~~~~~~             ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:16:15: error: invalid case style for member 'what_' [readability-identifier-naming,-warnings-as-errors]
+note: this fix will not be applied because it overlaps with another fix
+   16 |   std::string what_;
+      |               ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:21:5: error: 'what_' should be initialized in a member initializer of the constructor [cppcoreguidelines-prefer-member-initializer,-warnings-as-errors]
+   20 |   InvalidRequest(const std::string &str) {
+      |                                          : what_("Invalid request: " + str)
+   21 |     what_ = "Invalid request: " + str;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:24:3: error: function 'what' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   24 |   virtual const char* what() const noexcept override {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:24:23: error: 'virtual' is redundant since the function is already declared 'override' [cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override,-warnings-as-errors]
+   24 |   virtual const char* what() const noexcept override {
+      |   ~~~~~~~             ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:28:15: error: invalid case style for member 'what_' [readability-identifier-naming,-warnings-as-errors]
+note: this fix will not be applied because it overlaps with another fix
+   28 |   std::string what_;
+      |               ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:31:12: error: invalid case style for function 'DeserializeQuery' [readability-identifier-naming,-warnings-as-errors]
+   31 | ast::Query DeserializeQuery() {
+      |            ^~~~~~~~~~~~~~~~
+      |            deserialize_query
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:39:3: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   39 | T ConvertTo(const std::string& str) {
+      |   ^~~~~~~~~
+      |   convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:44:5: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   44 | int ConvertTo<int>(const std::string& str) {
+      |     ^~~~~~~~~
+      |     convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:46:7: error: variable 'number' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+   46 |   int number;
+      |       ^     
+      |              = 0
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:54:10: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   54 |   if (str[pos] != '\0') {
+      |          ^~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:62:6: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   62 | bool ConvertTo<bool>(const std::string& str) {
+      |      ^~~~~~~~~
+      |      convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:75:6: error: invalid case style for function 'AppendProperty' [readability-identifier-naming,-warnings-as-errors]
+   75 | void AppendProperty(Tuple& tuple, const ast::Property& property) {
+      |      ^~~~~~~~~~~~~~
+      |      append_property
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:89:7: error: invalid case style for function 'ConvertProperties' [readability-identifier-naming,-warnings-as-errors]
+   89 | Tuple ConvertProperties(const ast::PropertyList& properties) {
+      |       ^~~~~~~~~~~~~~~~~
+      |       convert_properties
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:98:6: error: invalid case style for function 'ApplyToTuple' [readability-identifier-naming,-warnings-as-errors]
+   98 | void ApplyToTuple(Tuple&& tuple, F&& func) {
+      |      ^~~~~~~~~~~~
+      |      apply_to_tuple
+Error while processing /home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_files.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/interprocess/interprocess.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/interprocess/interprocess.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/interprocess/interprocess.hpp:6:11: error: namespace alias decl 'bi' is unused [misc-unused-alias-decls,-warnings-as-errors]
+    6 | namespace bi = boost::interprocess;
+      | ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+    7 | 
+/home/garik/PROJECTS/GraphDB/src/query/interprocess/interprocess.hpp:8:20: error: invalid case style for variable 'kMutexName' [readability-identifier-naming,-warnings-as-errors]
+    8 | static const char* kMutexName = "stdout_mutex";
+      |                    ^~~~~~~~~~
+      |                    k_mutex_name
+/home/garik/PROJECTS/GraphDB/src/query/interprocess/interprocess.hpp:8:20: error: variable 'kMutexName' is non-const and globally accessible, consider making it const [cppcoreguidelines-avoid-non-const-global-variables,-warnings-as-errors]
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/manager/storage_basic_processor.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_basic_processor.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/graph/../interprocess/interprocess.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/../interprocess/interprocess.hpp:8:20: error: invalid case style for variable 'kMutexName' [readability-identifier-naming,-warnings-as-errors]
+    8 | static const char* kMutexName = "stdout_mutex";
+      |                    ^~~~~~~~~~
+      |                    k_mutex_name
+/home/garik/PROJECTS/GraphDB/src/query/graph/../interprocess/interprocess.hpp:8:20: error: variable 'kMutexName' is non-const and globally accessible, consider making it const [cppcoreguidelines-avoid-non-const-global-variables,-warnings-as-errors]
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:10:8: error: class 'Processor' defines a copy constructor, a copy assignment operator, a move constructor and a move assignment operator but does not define a destructor [hicpp-special-member-functions,-warnings-as-errors]
+   10 | struct Processor {
+      |        ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:12:20: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   12 |   using key_type = typename Engine::key_type;
+      |                    ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:13:23: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   13 |   using vertex_type = typename Engine::vertex_type;
+      |                       ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:14:21: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   14 |   using edge_type = typename Engine::edge_type;
+      |                     ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:16:10: error: constructor does not initialize these fields: vertexes, edges [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   16 |   struct SubGraph {
+      |          ^
+   17 |     using key_vertex_type = std::pair<key_type, vertex_type>;
+   18 |     using key_edge_type = std::tuple<key_type, key_type, edge_type>;
+   19 | 
+   20 |     using key_vertexes_type = std::vector<key_vertex_type>;
+   21 |     using key_edges_type = std::vector<key_edge_type>;
+   22 | 
+   23 |     key_vertexes_type vertexes;
+      |                               
+      |                               {}
+   24 |     key_edges_type edges;
+      |                         
+      |                         {}
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:52:42: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   52 |     void operator()(const ast::ExitQuery&) { processor_.finish(); }
+      |                                          ^
+      |                                           /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:53:44: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   53 |     void operator()(const ast::DeleteQuery&) { processor_.finish(); }
+      |                                            ^
+      |                                             /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp:125:32: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  125 |     void operator()(const auto&) { throw NotImplemented("not implemented query"); }
+      |                                ^
+      |                                 /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:9:20: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+    9 |   using key_type = typename Engine::key_type;
+      |                    ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:10:23: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   10 |   using vertex_type = typename Engine::vertex_type;
+      |                       ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/subgraph_manager.hpp:11:21: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   11 |   using edge_type = typename Engine::edge_type;
+      |                     ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:5:10: error: 'parser/ast.hpp' file not found [clang-diagnostic-error]
+    5 | #include "parser/ast.hpp"
+      |          ^~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:9:5: error: 'what_' should be initialized in a member initializer of the constructor [cppcoreguidelines-prefer-member-initializer,-warnings-as-errors]
+    8 |   NotImplemented(const std::string &str) {
+      |                                          : what_("Not implemented: " + str)
+    9 |     what_ = "Not implemented: " + str;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:12:3: error: function 'what' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   12 |   virtual const char* what() const noexcept override {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:12:23: error: 'virtual' is redundant since the function is already declared 'override' [cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override,-warnings-as-errors]
+   12 |   virtual const char* what() const noexcept override {
+      |   ~~~~~~~             ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:16:15: error: invalid case style for member 'what_' [readability-identifier-naming,-warnings-as-errors]
+note: this fix will not be applied because it overlaps with another fix
+   16 |   std::string what_;
+      |               ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:21:5: error: 'what_' should be initialized in a member initializer of the constructor [cppcoreguidelines-prefer-member-initializer,-warnings-as-errors]
+   20 |   InvalidRequest(const std::string &str) {
+      |                                          : what_("Invalid request: " + str)
+   21 |     what_ = "Invalid request: " + str;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:24:3: error: function 'what' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   24 |   virtual const char* what() const noexcept override {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:24:23: error: 'virtual' is redundant since the function is already declared 'override' [cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override,-warnings-as-errors]
+   24 |   virtual const char* what() const noexcept override {
+      |   ~~~~~~~             ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:28:15: error: invalid case style for member 'what_' [readability-identifier-naming,-warnings-as-errors]
+note: this fix will not be applied because it overlaps with another fix
+   28 |   std::string what_;
+      |               ^
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:31:12: error: invalid case style for function 'DeserializeQuery' [readability-identifier-naming,-warnings-as-errors]
+   31 | ast::Query DeserializeQuery() {
+      |            ^~~~~~~~~~~~~~~~
+      |            deserialize_query
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:39:3: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   39 | T ConvertTo(const std::string& str) {
+      |   ^~~~~~~~~
+      |   convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:44:5: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   44 | int ConvertTo<int>(const std::string& str) {
+      |     ^~~~~~~~~
+      |     convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:46:7: error: variable 'number' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+   46 |   int number;
+      |       ^     
+      |              = 0
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:54:10: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   54 |   if (str[pos] != '\0') {
+      |          ^~~~~
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:62:6: error: invalid case style for function 'ConvertTo' [readability-identifier-naming,-warnings-as-errors]
+   62 | bool ConvertTo<bool>(const std::string& str) {
+      |      ^~~~~~~~~
+      |      convert_to
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:75:6: error: invalid case style for function 'AppendProperty' [readability-identifier-naming,-warnings-as-errors]
+   75 | void AppendProperty(Tuple& tuple, const ast::Property& property) {
+      |      ^~~~~~~~~~~~~~
+      |      append_property
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:89:7: error: invalid case style for function 'ConvertProperties' [readability-identifier-naming,-warnings-as-errors]
+   89 | Tuple ConvertProperties(const ast::PropertyList& properties) {
+      |       ^~~~~~~~~~~~~~~~~
+      |       convert_properties
+/home/garik/PROJECTS/GraphDB/src/query/graph/utility.hpp:98:6: error: invalid case style for function 'ApplyToTuple' [readability-identifier-naming,-warnings-as-errors]
+   98 | void ApplyToTuple(Tuple&& tuple, F&& func) {
+      |      ^~~~~~~~~~~~
+      |      apply_to_tuple
+Error while processing /home/garik/PROJECTS/GraphDB/src/query/graph/processor.hpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:24:20: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   24 |     memcpy(&buffer_[buffer_.size() - size], buffer, size);
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:28:28: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   28 |     memcpy(buffer, &buffer_[buffer_.size() - size], size);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_getter.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_getter.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_strings.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine_managers.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine_managers.hpp:156:26: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+  156 |   using ids_edges_type = typename EdgeUsings<EdgeType>::ids_edges_type;
+      |                          ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:234:44: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+  234 |       const auto kOffset = get_offset(poses[i]);
+      |                                            ^~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3: error: enum '(unnamed enum at /home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3)' is unscoped, use 'enum class' instead [cppcoreguidelines-use-enum-class,-warnings-as-errors]
+  328 |   enum : char { Deleted, NotDeleted };
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_path_generator.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:29:8: error: tagged union has more data members (1) than tags (0)! [bugprone-tagged-union-member-count,-warnings-as-errors]
+   29 | struct Bucket {
+      |        ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:96:3: error: function 'get_value' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   96 |   const value_type& get_value() const {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:24:20: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   24 |     memcpy(&buffer_[buffer_.size() - size], buffer, size);
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:28:28: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   28 |     memcpy(buffer, &buffer_[buffer_.size() - size], size);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_strings.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_strings.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/files/storage_path_generator.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_path_generator.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:25:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   25 |   using key_vertex_type               = typename VertexUsings<vertex_type>::template typed_vertex_type<key_type>;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:26:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   26 |   using keys_vertexes_neighbours_type = typename VertexUsings<vertex_type>::template typed_vertexes_type<key_type>;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:27:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   27 |   using key_edge_type                 = typename EdgeUsings<edge_type>::template typed_edge_type<key_type>;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:28:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   28 |   using keys_edges_neighbours_type    = typename EdgeUsings<edge_type>::template typed_edges_type<key_type>;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:29:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   29 |   using id_vertex_type                = typename VertexUsings<vertex_type>::id_vertex_type;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:30:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   30 |   using ids_vertexes_type             = typename VertexUsings<vertex_type>::ids_vertexes_type;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:31:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   31 |   using id_edge_type                  = typename EdgeUsings<edge_type>::id_edge_type;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine.hpp:32:41: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+   32 |   using ids_edges_type                = typename EdgeUsings<edge_type>::ids_edges_type;
+      |                                         ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/engine/storage_engine_managers.hpp:156:26: error: redundant 'typename' [readability-redundant-typename,-warnings-as-errors]
+  156 |   using ids_edges_type = typename EdgeUsings<EdgeType>::ids_edges_type;
+      |                          ^~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:234:44: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+  234 |       const auto kOffset = get_offset(poses[i]);
+      |                                            ^~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3: error: enum '(unnamed enum at /home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3)' is unscoped, use 'enum class' instead [cppcoreguidelines-use-enum-class,-warnings-as-errors]
+  328 |   enum : char { Deleted, NotDeleted };
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_path_generator.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:29:8: error: tagged union has more data members (1) than tags (0)! [bugprone-tagged-union-member-count,-warnings-as-errors]
+   29 | struct Bucket {
+      |        ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:96:3: error: function 'get_value' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   96 |   const value_type& get_value() const {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:24:20: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   24 |     memcpy(&buffer_[buffer_.size() - size], buffer, size);
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:28:28: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   28 |     memcpy(buffer, &buffer_[buffer_.size() - size], size);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_getter.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_strings.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:70:19: error: unused local variable 'kCompileScriptPath' of type 'const path_type' (aka 'const std::filesystem::path') [bugprone-unused-local-non-trivial-variable,-warnings-as-errors]
+   70 |   const path_type kCompileScriptPath = get_compile_script_path();
+      |                   ^
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:71:19: error: unused local variable 'kCodePath' of type 'const path_type' (aka 'const std::filesystem::path') [bugprone-unused-local-non-trivial-variable,-warnings-as-errors]
+   71 |   const path_type kCodePath = get_code_path(k_graph_path);
+      |                   ^
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:72:19: error: unused local variable 'kBinaryPath' of type 'const path_type' (aka 'const std::filesystem::path') [bugprone-unused-local-non-trivial-variable,-warnings-as-errors]
+   72 |   const path_type kBinaryPath = get_binary_path(k_graph_path);
+      |                   ^
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:73:19: error: no member named 'child' in namespace 'boost::process' [clang-diagnostic-error]
+   73 |   boost::process::child cmake(boost::process::search_path(kBashCommand).c_str(),
+      |                   ^~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp:76:3: error: use of undeclared identifier 'cmake' [clang-diagnostic-error]
+   76 |   cmake.wait();
+      |   ^~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager_patterns.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+Error while processing /home/garik/PROJECTS/GraphDB/src/storage/manager/storage_manager.cpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:11:11: error: namespace alias decl 'ba' is unused [misc-unused-alias-decls,-warnings-as-errors]
+   11 | namespace ba = boost::archive;
+      | ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+   12 | 
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:5:10: error: 'utils/storage_config.hpp' file not found [clang-diagnostic-error]
+    5 | #include "utils/storage_config.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:9:8: error: constructor does not initialize these fields: graph_name, key_type, vertex_names, vertex_type, edge_names, edge_type [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+    9 | struct GraphInfo {
+      |        ^
+   10 |   text_type graph_name;
+      |                       
+      |                       {}
+   11 | 
+   12 |   text_type key_type;
+      |                     
+      |                     {}
+   13 | 
+   14 |   text_type vertex_names;
+      |                         
+      |                         {}
+   15 |   text_type vertex_type;
+      |                        
+      |                        {}
+   16 | 
+   17 |   text_type edge_names;
+      |                       
+      |                       {}
+   18 |   text_type edge_type;
+      |                      
+      |                      {}
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:23:3: error: constructor does not initialize these fields: names_, fields_, name_mangling_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   23 |   FieldsConstructor(text_type name_mangling)
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:8:20: error: invalid case style for variable 'kMutexName' [readability-identifier-naming,-warnings-as-errors]
+    8 | static const char* kMutexName = "stdout_mutex";
+      |                    ^~~~~~~~~~
+      |                    k_mutex_name
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:8:20: error: variable 'kMutexName' is non-const and globally accessible, consider making it const [cppcoreguidelines-avoid-non-const-global-variables,-warnings-as-errors]
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:3:20: error: function 'ReadQuery' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+    3 | static std::string ReadQuery() {
+      |                    ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:3:20: error: invalid case style for function 'ReadQuery' [readability-identifier-naming,-warnings-as-errors]
+    3 | static std::string ReadQuery() {
+      |                    ^~~~~~~~~
+      |                    read_query
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:10:36: error: function 'ParseQuery' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+   10 | static std::pair<bool, ast::Query> ParseQuery(const std::string &query_str) {
+      |                                    ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:10:36: error: invalid case style for function 'ParseQuery' [readability-identifier-naming,-warnings-as-errors]
+   10 | static std::pair<bool, ast::Query> ParseQuery(const std::string &query_str) {
+      |                                    ^~~~~~~~~~
+      |                                    parse_query
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:11:3: error: variable 'query' of type 'ast::Query' (aka 'boost::variant<ExitQuery, ReturnQuery, NewQuery, DeleteQuery, AddQuery, MatchQuery, RemoveQuery, UnmatchQuery, UpdateQuery, SelectQuery>') can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+   11 |   ast::Query query;
+      |   ^
+      |              const 
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:13:3: error: variable 'begin' of type 'parser::iterator_type' (aka '__gnu_cxx::__normal_iterator<const char *, basic_string<char, std::char_traits<char>, std::allocator<char>>>') can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+   13 |   parser::iterator_type begin = query_str.begin();
+      |   ^
+      |                         const 
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:14:31: error: invalid case style for constant 'end' [readability-identifier-naming,-warnings-as-errors]
+   14 |   const parser::iterator_type end = query_str.end();
+      |                               ^~~
+      |                               kEnd
+   15 | 
+   16 |   bool parsed =
+   17 |       phrase_parse(begin, end, parser::parser(), x3::ascii::space, query);
+      |                           ~~~
+      |                           kEnd
+   18 |   parsed = parsed and (begin == end);
+      |                                 ~~~
+      |                                 kEnd
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:23:36: error: function 'GetQuery' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+   23 | static std::pair<bool, ast::Query> GetQuery() {
+      |                                    ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:23:36: error: invalid case style for function 'GetQuery' [readability-identifier-naming,-warnings-as-errors]
+   23 | static std::pair<bool, ast::Query> GetQuery() {
+      |                                    ^~~~~~~~
+      |                                    get_query
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:24:3: error: variable 'query_str' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+   24 |   std::string query_str = ReadQuery();
+      |   ^
+      |               const 
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:31:13: error: function 'SerializeQuery' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+   31 | static void SerializeQuery(auto &&query, bp::opstream &pipe) {
+      |             ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:31:13: error: invalid case style for function 'SerializeQuery' [readability-identifier-naming,-warnings-as-errors]
+   31 | static void SerializeQuery(auto &&query, bp::opstream &pipe) {
+      |             ^~~~~~~~~~~~~~
+      |             serialize_query
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:33:20: error: forwarding reference passed to std::move(), which may unexpectedly cause lvalues to be moved; use std::forward() instead [bugprone-move-forwarding-reference,-warnings-as-errors]
+   33 |   ar << ast::Query(std::move(query));
+      |                    ^~~~~~~~~
+      |                    std::forward<decltype(query)>
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:36:13: error: function 'GraphInfo' declared 'static', move to anonymous namespace instead [misc-use-anonymous-namespace,-warnings-as-errors]
+   36 | static auto GraphInfo(const ast::NewQuery &query) {
+      |             ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:36:13: error: invalid case style for function 'GraphInfo' [readability-identifier-naming,-warnings-as-errors]
+   36 | static auto GraphInfo(const ast::NewQuery &query) {
+      |             ^~~~~~~~~
+      |             graph_info
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:67:25: error: invalid case style for constant 'current' [readability-identifier-naming,-warnings-as-errors]
+   67 |   static const fs::path current = "./";
+      |                         ^~~~~~~
+      |                         kCurrent
+   68 | 
+   69 |   auto &handler = GetInstance();
+   70 |   handler.database_path = current / database;
+      |                           ~~~~~~~
+      |                           kCurrent
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:104:20: error: method 'launch_graph' can be made static [readability-convert-member-functions-to-static,-warnings-as-errors]
+  104 | void QueryHandler::launch_graph(const fs::path &graph_dir) {
+      |                    ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:113:20: error: method 'handle_query' can be made static [readability-convert-member-functions-to-static,-warnings-as-errors]
+  113 | bool QueryHandler::handle_query() {
+      |                    ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:122:57: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  122 | bool QueryHandler::Vizitor::operator()(ast::ExitQuery &&) { return false; }
+      |                                                         ^
+      |                                                          /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:157:14: error: forwarding reference passed to std::move(), which may unexpectedly cause lvalues to be moved; use std::forward() instead [bugprone-move-forwarding-reference,-warnings-as-errors]
+  157 |   send_query(std::move(query));
+      |              ^~~~~~~~~
+      |              std::forward<decltype(query)>
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp:171:18: error: forwarding reference passed to std::move(), which may unexpectedly cause lvalues to be moved; use std::forward() instead [bugprone-move-forwarding-reference,-warnings-as-errors]
+  171 |   SerializeQuery(std::move(query), out);
+      |                  ^~~~~~~~~
+      |                  std::forward<decltype(query)>
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:18:15: error: invalid case style for method 'Launch' [readability-identifier-naming,-warnings-as-errors]
+   18 |   static void Launch(const fs::path &database, storage::manager::StorageManager &manager);
+      |               ^~~~~~
+      |               launch
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:19:15: error: invalid case style for method 'HandleQueries' [readability-identifier-naming,-warnings-as-errors]
+   19 |   static void HandleQueries();
+      |               ^~~~~~~~~~~~~
+      |               handle_queries
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:20:15: error: invalid case style for method 'Finish' [readability-identifier-naming,-warnings-as-errors]
+   20 |   static void Finish();
+      |               ^~~~~~
+      |               finish
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:27:3: error: constructor does not initialize these fields: database_, manager_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   27 |   QueryHandler(): mutex_(bi::create_only, kMutexName) {}
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:29:3: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   29 |   QueryHandler(const QueryHandler &) = delete;
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:30:3: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   30 |   QueryHandler(QueryHandler &&) = delete;
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:32:17: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   32 |   QueryHandler &operator=(const QueryHandler &) = delete;
+      |                 ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:33:17: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   33 |   QueryHandler &operator=(QueryHandler &&) = delete;
+      |                 ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:35:24: error: invalid case style for method 'GetInstance' [readability-identifier-naming,-warnings-as-errors]
+   35 |   static QueryHandler &GetInstance();
+      |                        ^~~~~~~~~~~
+      |                        get_instance
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:37:37: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   37 |   void launch_graph(const fs::path &);
+      |                                     ^
+      |                                      /*graph_dir*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:44:38: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   44 |     bool operator()(ast::ExitQuery &&);
+      |                                      ^
+      |                                       /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:46:37: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   46 |     bool operator()(ast::NewQuery &&);
+      |                                     ^
+      |                                      /*query*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:47:40: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   47 |     bool operator()(ast::DeleteQuery &&);
+      |                                        ^
+      |                                         /*query*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:49:28: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   49 |     bool operator()(auto &&);
+      |                            ^
+      |                             /*query*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:51:28: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   51 |     bool send_query(auto &&);
+      |                            ^
+      |                             /*query*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:54:10: error: constructor does not initialize these fields: proc, out [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   54 |   struct GraphProcess {
+      |          ^
+   55 |     GraphProcess() = default;
+   56 | 
+   57 |     bp::child proc;
+      |                   
+      |                   {}
+   58 |     bp::opstream out;
+      |                     
+      |                     {}
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:61:12: error: invalid case style for private member 'database_path' [readability-identifier-naming,-warnings-as-errors]
+   61 |   fs::path database_path;
+      |            ^~~~~~~~~~~~~
+      |            database_path_
+Error while processing /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.cpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.cpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_def.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_def.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/parser/ast_adapted.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_def.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/parser/query_parser_rules.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:5:10: error: 'utils/storage_config.hpp' file not found [clang-diagnostic-error]
+    5 | #include "utils/storage_config.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:9:8: error: constructor does not initialize these fields: graph_name, key_type, vertex_names, vertex_type, edge_names, edge_type [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+    9 | struct GraphInfo {
+      |        ^
+   10 |   text_type graph_name;
+      |                       
+      |                       {}
+   11 | 
+   12 |   text_type key_type;
+      |                     
+      |                     {}
+   13 | 
+   14 |   text_type vertex_names;
+      |                         
+      |                         {}
+   15 |   text_type vertex_type;
+      |                        
+      |                        {}
+   16 | 
+   17 |   text_type edge_names;
+      |                       
+      |                       {}
+   18 |   text_type edge_type;
+      |                      
+      |                      {}
+/home/garik/PROJECTS/GraphDB/src/query/handler/../../storage/manager/storage_manager.hpp:23:3: error: constructor does not initialize these fields: names_, fields_, name_mangling_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   23 |   FieldsConstructor(text_type name_mangling)
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:8:20: error: invalid case style for variable 'kMutexName' [readability-identifier-naming,-warnings-as-errors]
+    8 | static const char* kMutexName = "stdout_mutex";
+      |                    ^~~~~~~~~~
+      |                    k_mutex_name
+/home/garik/PROJECTS/GraphDB/src/query/handler/../interprocess/interprocess.hpp:8:20: error: variable 'kMutexName' is non-const and globally accessible, consider making it const [cppcoreguidelines-avoid-non-const-global-variables,-warnings-as-errors]
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:26:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   26 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:32:7: error: invalid case style for type alias 'PropertyList' [readability-identifier-naming,-warnings-as-errors]
+   32 | using PropertyList = std::vector<Property>;
+      |       ^~~~~~~~~~~~
+      |       property_list
+   33 | 
+   34 | struct Vertex {
+   35 |  public:
+   36 |   boost::optional<std::string> key;
+   37 |   PropertyList properties;
+      |   ~~~~~~~~~~~~
+      |   property_list
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:43:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   43 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:49:7: error: invalid case style for type alias 'Edge' [readability-identifier-naming,-warnings-as-errors]
+   49 | using Edge = PropertyList;
+      |       ^~~~
+      |       edge
+   50 | 
+   51 | struct Match {
+   52 |  public:
+   53 |   Vertex from;
+   54 |   Edge edge;
+      |   ~~~~
+      |   edge
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:61:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   61 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:80:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   80 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:93:27: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+   93 |   void serialize(Archive &, const unsigned) {}
+      |                           ^               
+      |                            /*unused*/      /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:104:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  104 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:117:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  117 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:131:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  131 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:146:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  146 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:160:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  160 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:173:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  173 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:187:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  187 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:202:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  202 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:216:45: error: all parameters should be named in a function [hicpp-named-parameter,-warnings-as-errors]
+  216 |   void serialize(Archive &ar, const unsigned) {
+      |                                             ^
+      |                                              /*unused*/
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/ast.hpp:221:7: error: invalid case style for type alias 'Query' [readability-identifier-naming,-warnings-as-errors]
+  221 | using Query = boost::variant<ExitQuery  , ReturnQuery,
+      |       ^~~~~
+      |       query
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/query_parser.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/../parser/query_parser.hpp:12:12: error: invalid case style for constant 'separator' [readability-identifier-naming,-warnings-as-errors]
+   12 | const char separator = ';';
+      |            ^~~~~~~~~
+      |            kSeparator
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:13:11: error: namespace alias decl 'bp' is unused [misc-unused-alias-decls,-warnings-as-errors]
+   13 | namespace bp = boost::process;
+      | ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+   14 | namespace ba = boost::archive;
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:14:11: error: namespace alias decl 'ba' is unused [misc-unused-alias-decls,-warnings-as-errors]
+   14 | namespace ba = boost::archive;
+      | ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+   15 | 
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:18:15: error: invalid case style for method 'Launch' [readability-identifier-naming,-warnings-as-errors]
+   18 |   static void Launch(const fs::path &database, storage::manager::StorageManager &manager);
+      |               ^~~~~~
+      |               launch
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:19:15: error: invalid case style for method 'HandleQueries' [readability-identifier-naming,-warnings-as-errors]
+   19 |   static void HandleQueries();
+      |               ^~~~~~~~~~~~~
+      |               handle_queries
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:20:15: error: invalid case style for method 'Finish' [readability-identifier-naming,-warnings-as-errors]
+   20 |   static void Finish();
+      |               ^~~~~~
+      |               finish
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:27:3: error: constructor does not initialize these fields: database_, manager_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   27 |   QueryHandler(): mutex_(bi::create_only, kMutexName) {}
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:29:3: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   29 |   QueryHandler(const QueryHandler &) = delete;
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:30:3: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   30 |   QueryHandler(QueryHandler &&) = delete;
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:32:17: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   32 |   QueryHandler &operator=(const QueryHandler &) = delete;
+      |                 ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:33:17: error: deleted member function should be public [hicpp-use-equals-delete,modernize-use-equals-delete,-warnings-as-errors]
+   33 |   QueryHandler &operator=(QueryHandler &&) = delete;
+      |                 ^
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:35:24: error: invalid case style for method 'GetInstance' [readability-identifier-naming,-warnings-as-errors]
+   35 |   static QueryHandler &GetInstance();
+      |                        ^~~~~~~~~~~
+      |                        get_instance
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:54:10: error: constructor does not initialize these fields: proc, out [cppcoreguidelines-pro-type-member-init,hicpp-member-init,-warnings-as-errors]
+   54 |   struct GraphProcess {
+      |          ^
+   55 |     GraphProcess() = default;
+   56 | 
+   57 |     bp::child proc;
+      |                   
+      |                   {}
+   58 |     bp::opstream out;
+      |                     
+      |                     {}
+/home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp:61:12: error: invalid case style for private member 'database_path' [readability-identifier-naming,-warnings-as-errors]
+   61 |   fs::path database_path;
+      |            ^~~~~~~~~~~~~
+      |            database_path_
+Error while processing /home/garik/PROJECTS/GraphDB/src/query/handler/query_handler.hpp.
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:234:44: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+  234 |       const auto kOffset = get_offset(poses[i]);
+      |                                            ^~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3: error: enum '(unnamed enum at /home/garik/PROJECTS/GraphDB/src/storage/files/storage_file_adapters.hpp:328:3)' is unscoped, use 'enum class' instead [cppcoreguidelines-use-enum-class,-warnings-as-errors]
+  328 |   enum : char { Deleted, NotDeleted };
+      |   ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:29:8: error: tagged union has more data members (1) than tags (0)! [bugprone-tagged-union-member-count,-warnings-as-errors]
+   29 | struct Bucket {
+      |        ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_pod_structures.hpp:96:3: error: function 'get_value' should be marked [[nodiscard]] [modernize-use-nodiscard,-warnings-as-errors]
+   96 |   const value_type& get_value() const {
+      |   ^
+      |   [[nodiscard]] 
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:24:20: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   24 |     memcpy(&buffer_[buffer_.size() - size], buffer, size);
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_serialize_type.hpp:28:28: error: possibly unsafe 'operator[]', consider bounds-safe alternatives [cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,-warnings-as-errors]
+   28 |     memcpy(buffer, &buffer_[buffer_.size() - size], size);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/files/storage_file.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/files/storage_file.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+Error in /home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_config.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_errors.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+/home/garik/PROJECTS/GraphDB/src/storage/utils/storage_type_list.hpp:1:1: error: avoid 'pragma once' directive; use include guards instead [portability-avoid-pragma-once,-warnings-as-errors]
+    1 | #pragma once
+      | ^
+
+FAILED: 31 files failed static analysis.
+
+    Start 3: Storage_Engine_Basic
+3/6 Test #3: Storage_Engine_Basic .............   Passed   18.14 sec
+    Start 4: Storage_Engine_LargeKey
+4/6 Test #4: Storage_Engine_LargeKey ..........   Passed    0.02 sec
+    Start 5: Storage_Engine_LargeVertex
+5/6 Test #5: Storage_Engine_LargeVertex .......   Passed    0.02 sec
+    Start 6: Storage_POD_Stress
+6/6 Test #6: Storage_POD_Stress ...............   Passed    0.06 sec
+
+67% tests passed, 2 tests failed out of 6
+
+Total Test time (real) =  24.31 sec
+
+The following tests FAILED:
+	  1 - FormatCheck (Failed)
+	  2 - TidyCheck (Failed)
+Errors while running CTest
