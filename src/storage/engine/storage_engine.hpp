@@ -22,14 +22,14 @@ class StorageEngine {
   using edge_type   = EdgeFields;
   using hash_type   = Hash;
 
-  using key_vertex_type               = typename VertexUsings<vertex_type>::template typed_vertex_type<key_type>;
-  using keys_vertexes_neighbours_type = typename VertexUsings<vertex_type>::template typed_vertexes_type<key_type>;
-  using key_edge_type                 = typename EdgeUsings<edge_type>::template typed_edge_type<key_type>;
-  using keys_edges_neighbours_type    = typename EdgeUsings<edge_type>::template typed_edges_type<key_type>;
-  using id_vertex_type                = typename VertexUsings<vertex_type>::id_vertex_type;
-  using ids_vertexes_type             = typename VertexUsings<vertex_type>::ids_vertexes_type;
-  using id_edge_type                  = typename EdgeUsings<edge_type>::id_edge_type;
-  using ids_edges_type                = typename EdgeUsings<edge_type>::ids_edges_type;
+  using key_vertex_type               = VertexUsings<vertex_type>::template typed_vertex_type<key_type>;
+  using keys_vertexes_neighbours_type = VertexUsings<vertex_type>::template typed_vertexes_type<key_type>;
+  using key_edge_type                 = EdgeUsings<edge_type>::template typed_edge_type<key_type>;
+  using keys_edges_neighbours_type    = EdgeUsings<edge_type>::template typed_edges_type<key_type>;
+  using id_vertex_type                = VertexUsings<vertex_type>::id_vertex_type;
+  using ids_vertexes_type             = VertexUsings<vertex_type>::ids_vertexes_type;
+  using id_edge_type                  = EdgeUsings<edge_type>::id_edge_type;
+  using ids_edges_type                = EdgeUsings<edge_type>::ids_edges_type;
 
   using vertex_getter_type  = details::Getter<vertex_type>;
   using vertex_edge_type    = details::Getter<edge_type>;

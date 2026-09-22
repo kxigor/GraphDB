@@ -54,6 +54,8 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 fi
 
 FAILED=0
+FORMATTED_FILE=$(mktemp)
+trap 'rm -f "$FORMATTED_FILE"' EXIT
 echo "Checking format with config: $CONFIG_FILE"
 
 for FILE in "${FILES[@]}"; do
@@ -62,7 +64,13 @@ for FILE in "${FILES[@]}"; do
         continue
     fi
 
-    if ! diff -u "$FILE" <($FORMAT_CMD -style=file:"$CONFIG_FILE" "$FILE"); then
+    if ! "$FORMAT_CMD" -style=file:"$CONFIG_FILE" "$FILE" > "$FORMATTED_FILE"; then
+        echo "Error: Formatter failed for $FILE"
+        FAILED=1
+        continue
+    fi
+
+    if ! diff -u "$FILE" "$FORMATTED_FILE"; then
         echo "Format violation: $FILE"
         FAILED=1
     fi

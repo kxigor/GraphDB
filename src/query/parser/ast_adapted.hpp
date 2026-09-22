@@ -11,7 +11,8 @@ BOOST_FUSION_ADAPT_STRUCT(ast::Vertex, key, properties);
 
 BOOST_FUSION_ADAPT_STRUCT(ast::Match, from, edge, to);
 
-BOOST_FUSION_ADAPT_STRUCT(ast::Graph, name, key_type, vertex_fields, edge_fields);
+BOOST_FUSION_ADAPT_STRUCT(ast::Graph, name, key_type, vertex_fields,
+                          edge_fields);
 
 BOOST_FUSION_ADAPT_STRUCT(ast::ExitQuery);
 

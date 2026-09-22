@@ -5,25 +5,17 @@
 #include "parser/ast.hpp"
 
 struct NotImplemented : std::exception {
-  NotImplemented(const std::string &str) {
-    what_ = "Not implemented: " + str;
-  }
+  NotImplemented(const std::string& str) { what_ = "Not implemented: " + str; }
 
-  virtual const char* what() const noexcept override {
-    return what_.c_str();
-  }
+  virtual const char* what() const noexcept override { return what_.c_str(); }
 
   std::string what_;
 };
 
 struct InvalidRequest : std::exception {
-  InvalidRequest(const std::string &str) {
-    what_ = "Invalid request: " + str;
-  }
+  InvalidRequest(const std::string& str) { what_ = "Invalid request: " + str; }
 
-  virtual const char* what() const noexcept override {
-    return what_.c_str();
-  }
+  virtual const char* what() const noexcept override { return what_.c_str(); }
 
   std::string what_;
 };
@@ -100,6 +92,5 @@ void ApplyToTuple(Tuple&& tuple, F&& func) {
     (std::invoke(std::forward<F>(func),
                  std::get<Is>(std::forward<Tuple>(tuple))),
      ...);
-  }
-  (std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>());
+  }(std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>());
 }

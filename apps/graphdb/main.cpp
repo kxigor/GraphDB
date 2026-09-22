@@ -1,12 +1,14 @@
 
 #include "query/handler/query_handler.hpp"
 
-using handler = void(*)();
+using handler = void (*)();
 
-static std::unordered_map<std::string, storage::manager::StorageManager> databases;
+static std::unordered_map<std::string, storage::manager::StorageManager>
+    databases;
 
 static const std::unordered_map<std::string, handler> handlers = {
-    {"create", +[]() {
+    {"create",
+     +[]() {
        std::string database;
        std::cin >> database;
 
@@ -17,34 +19,35 @@ static const std::unordered_map<std::string, handler> handlers = {
 
        databases.emplace(database, storage::manager::StorageManager(database));
        databases.at(database).create_db();
-    }},
-    {"destroy", +[]() {
+     }},
+    {"destroy",
+     +[]() {
        std::string database;
        std::cin >> database;
 
        if (not databases.contains(database)) {
-         std::cerr << "no database named `"<< database << "`\n";
+         std::cerr << "no database named `" << database << "`\n";
          return;
        }
 
        databases.at(database).remove_db();
        databases.erase(database);
-    }},
-    {"launch", +[]() {
+     }},
+    {"launch",
+     +[]() {
        std::string database;
        std::cin >> database;
 
        if (not databases.contains(database)) {
-         std::cerr << "no database named `"<< database << "`\n";
+         std::cerr << "no database named `" << database << "`\n";
          return;
        }
 
        QueryHandler::Launch(database, databases.at(database));
        QueryHandler::HandleQueries();
        QueryHandler::Finish();
-    }},
-    {"exit", +[]() { exit(EXIT_SUCCESS); }}
-};
+     }},
+    {"exit", +[]() { exit(EXIT_SUCCESS); }}};
 
 static void HandleQuery(const std::string &query);
 
@@ -54,7 +57,7 @@ int main() try {
     std::cin >> query;
     HandleQuery(query);
   }
-} catch(...) {
+} catch (...) {
   QueryHandler::Finish();
 
   std::cerr << "internal error\n";

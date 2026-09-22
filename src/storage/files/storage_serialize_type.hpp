@@ -21,11 +21,11 @@ struct PrimitiveBuffer {
 
   void write(const void* buffer, size_type size) {
     buffer_.resize(buffer_.size() + size);
-    memcpy(&buffer_[buffer_.size() - size], buffer, size);
+    memcpy(buffer_.data() + buffer_.size() - size, buffer, size);
   }
 
   void read(void* buffer, size_type size) {
-    memcpy(buffer, &buffer_[buffer_.size() - size], size);
+    memcpy(buffer, buffer_.data() + buffer_.size() - size, size);
     buffer_.resize(buffer_.size() - size);
   }
 

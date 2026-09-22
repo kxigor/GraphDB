@@ -218,9 +218,7 @@ struct ReturnQuery {
   }
 };
 
-using Query = boost::variant<ExitQuery  , ReturnQuery,
-                             NewQuery   , DeleteQuery,
-                             AddQuery   , MatchQuery,
-                             RemoveQuery, UnmatchQuery,
+using Query = boost::variant<ExitQuery, ReturnQuery, NewQuery, DeleteQuery,
+                             AddQuery, MatchQuery, RemoveQuery, UnmatchQuery,
                              UpdateQuery, SelectQuery>;
 }  // namespace ast

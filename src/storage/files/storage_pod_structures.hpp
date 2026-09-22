@@ -26,6 +26,8 @@ struct PayloadInfo {
 };
 
 template <typename ValueType>
+// MapStatus tracks slot lifetime, not alternative union member types.
+// NOLINTNEXTLINE(bugprone-tagged-union-member-count)
 struct Bucket {
   enum class MapStatus : char { Free, Occupied, Deleted };
   using value_type = ValueType;
@@ -93,7 +95,7 @@ struct Bucket {
 
   value_type& get_value() { return value_; }
 
-  const value_type& get_value() const {
+  [[nodiscard]] const value_type& get_value() const {
     return const_cast<Bucket*>(this)->get_value();
   }
 

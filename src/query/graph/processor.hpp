@@ -122,7 +122,9 @@ struct Processor {
       std::cout << "}\n";
     }
 
-    void operator()(const auto&) { throw NotImplemented("not implemented query"); }
+    void operator()(const auto&) {
+      throw NotImplemented("not implemented query");
+    }
 
    private:
     Processor& processor_;

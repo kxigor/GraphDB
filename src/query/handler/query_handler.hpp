@@ -5,9 +5,9 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "../parser/query_parser.hpp"
 #include "../../storage/manager/storage_manager.hpp"
 #include "../interprocess/interprocess.hpp"
+#include "../parser/query_parser.hpp"
 
 namespace fs = std::filesystem;
 namespace bp = boost::process;
@@ -15,16 +15,15 @@ namespace ba = boost::archive;
 
 class QueryHandler {
  public:
-  static void Launch(const fs::path &database, storage::manager::StorageManager &manager);
+  static void Launch(const fs::path &database,
+                     storage::manager::StorageManager &manager);
   static void HandleQueries();
   static void Finish();
 
-  ~QueryHandler() {
-    bi::named_mutex::remove(kMutexName);
-  }
+  ~QueryHandler() { bi::named_mutex::remove(kMutexName); }
 
  private:
-  QueryHandler(): mutex_(bi::create_only, kMutexName) {}
+  QueryHandler() : mutex_(bi::create_only, kMutexName) {}
 
   QueryHandler(const QueryHandler &) = delete;
   QueryHandler(QueryHandler &&) = delete;

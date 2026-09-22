@@ -153,7 +153,7 @@ class VertexManager {
 template <typename EdgeType>
 class EdgeManager {
   /*============================= Usings ==============================*/
-  using ids_edges_type = typename EdgeUsings<EdgeType>::ids_edges_type;
+  using ids_edges_type = EdgeUsings<EdgeType>::ids_edges_type;
 
   using forward_edge_adapter = files::ForwardEdgeFileAdapter;
   using backward_edge_adapter = files::BackwardEdgeFileAdapter;

@@ -9,6 +9,19 @@ file(GLOB_RECURSE ALL_SRCS CONFIGURE_DEPENDS
   "${PROJECT_SOURCE_DIR}/src/*.hpp"
 )
 
+# Formatting applies to the whole repository. Static analysis needs the
+# compiler flags and dependencies of modules enabled in this build.
+set(TIDY_SRCS ${ALL_SRCS})
+if(NOT GRAPHDB_BUILD_MANAGER)
+  list(FILTER TIDY_SRCS EXCLUDE REGEX "/src/storage/manager/")
+endif()
+if(NOT GRAPHDB_BUILD_QUERY)
+  list(FILTER TIDY_SRCS EXCLUDE REGEX "/src/query/")
+endif()
+if(NOT GRAPHDB_BUILD_APPS)
+  list(FILTER TIDY_SRCS EXCLUDE REGEX "/apps/")
+endif()
+
 # ========================================
 # 2. SETTING SCRIPTS/CONFIGS
 # ========================================
@@ -38,6 +51,6 @@ if(GRAPHDB_ENABLE_TIDY_CHECK)
     --tidy-exec ${CLANG_TIDY_EXE}
     --build-dir ${CMAKE_BINARY_DIR}
     --config ${TIDY_CONFIG}
-    ${ALL_SRCS}
+    ${TIDY_SRCS}
   )
 endif()

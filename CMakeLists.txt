@@ -62,15 +62,16 @@ endif()
 # =========================================================
 find_package(Boost REQUIRED COMPONENTS filesystem system serialization)
 
-# fmt: prefer system install, fall back to FetchContent so the project builds
-# out of the box (CI / Docker / fresh checkout without fmt-devel installed).
-find_package(fmt CONFIG QUIET)
+# fmt 11.1 fixes compile-time format checks with recent Clang versions.
+# Prefer a compatible system install, otherwise fetch the pinned release.
+find_package(fmt 11.1 CONFIG QUIET)
 if(NOT fmt_FOUND)
-  message(STATUS "fmt not found via find_package — pulling via FetchContent")
+  message(STATUS "fmt >= 11.1 not found — pulling 11.2.0 via FetchContent")
   include(FetchContent)
   FetchContent_Declare(fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 11.0.2
+    GIT_TAG 11.2.0
+    GIT_SHALLOW TRUE
   )
   FetchContent_MakeAvailable(fmt)
 endif()

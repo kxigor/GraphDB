@@ -50,8 +50,8 @@ porting task.
 - A C++20 compiler. Tested with GCC 14+ and Clang 18+.
 - Ninja (the presets declare it).
 - Boost (`filesystem`, `system`, `serialization`).
-- fmt — used through `find_package`, or auto-pulled via `FetchContent` if not
-  found on the system.
+- fmt 11.1 or newer — used through `find_package`, or version 11.2.0 is
+  fetched automatically if a compatible system package is unavailable.
 - GoogleTest — for the test suite.
 - clang-format and clang-tidy — optional, only needed for FormatCheck/TidyCheck.
 

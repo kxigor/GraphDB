@@ -48,14 +48,12 @@ static auto GraphInfo(const ast::NewQuery &query) {
     edge_fields.add_field(edge.second, edge.first);
   }
 
-  return storage::manager::GraphInfo {
-    .graph_name = query.graph.name,
-    .key_type = query.graph.key_type,
-    .vertex_names = vertex_fields.get_names(),
-    .vertex_type = vertex_fields.get_type(),
-    .edge_names = edge_fields.get_names(),
-    .edge_type = edge_fields.get_type()
-  };
+  return storage::manager::GraphInfo{.graph_name = query.graph.name,
+                                     .key_type = query.graph.key_type,
+                                     .vertex_names = vertex_fields.get_names(),
+                                     .vertex_type = vertex_fields.get_type(),
+                                     .edge_names = edge_fields.get_names(),
+                                     .edge_type = edge_fields.get_type()};
 }
 
 QueryHandler &QueryHandler::GetInstance() {
@@ -63,7 +61,8 @@ QueryHandler &QueryHandler::GetInstance() {
   return handler;
 }
 
-void QueryHandler::Launch(const fs::path &database, storage::manager::StorageManager &manager) {
+void QueryHandler::Launch(const fs::path &database,
+                          storage::manager::StorageManager &manager) {
   static const fs::path current = "./";
 
   auto &handler = GetInstance();

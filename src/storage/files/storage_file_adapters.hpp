@@ -224,16 +224,16 @@ class BaseArrayFileAdapter
 
   /*============================= LookUp ==============================*/
   [[nodiscard]] value_type get_value(size_type pos) {
-    return std::move(multiget_values({pos})[0]);
+    return std::move(multiget_values({pos}).front());
   }
 
   [[nodiscard]] values_type multiget_values(const poses_type& poses) {
     const auto kPosesValuesSize = poses.size();
     values_type values(kPosesValuesSize);
     for (size_type i = 0; i < kPosesValuesSize; ++i) {
-      const auto kOffset = get_offset(poses[i]);
+      const auto kOffset = get_offset(poses.at(i));
       this->file.set_map_pos(kOffset);
-      policy_type::deserialize(this->file, values[i]);
+      policy_type::deserialize(this->file, values.at(i));
     }
     return values;
   }
@@ -325,7 +325,6 @@ class BaseEdgeFileAdapter
     : public PodFileAdapter<MappingAll, pod::PayloadInfo> {
   /*======================== Constants/Usings =========================*/
   enum class Status : char { Occupied, Deleted };
-  enum : char { Deleted, NotDeleted };
   using base_adapter_type = PodFileAdapter<MappingAll, pod::PayloadInfo>;
   using policy_type = Policy;
 
