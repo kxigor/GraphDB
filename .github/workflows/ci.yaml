@@ -21,23 +21,15 @@ jobs:
         include:
           - preset: dev-debug-asan
             compiler: clang
-            cc: clang
-            cxx: clang++
 
           - preset: dev-debug-asan
             compiler: gcc
-            cc: gcc
-            cxx: g++
 
           - preset: ci-tests-release
             compiler: clang
-            cc: clang
-            cxx: clang++
 
           - preset: ci-tests-release
             compiler: gcc
-            cc: gcc
-            cxx: g++
 
     steps:
       - name: Checkout repository
@@ -63,18 +55,11 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh ${{ env.LLVM_VERSION }} all
 
-          sudo update-alternatives --install /usr/bin/clang-format clang-format \
-            /usr/bin/clang-format-${{ env.LLVM_VERSION }} 100
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy \
-            /usr/bin/clang-tidy-${{ env.LLVM_VERSION }} 100
-
       - name: Setup Clang ${{ env.LLVM_VERSION }} as compiler
         if: matrix.compiler == 'clang'
         run: |
-          sudo update-alternatives --install /usr/bin/clang clang \
-            /usr/bin/clang-${{ env.LLVM_VERSION }} 100
-          sudo update-alternatives --install /usr/bin/clang++ clang++ \
-            /usr/bin/clang++-${{ env.LLVM_VERSION }} 100
+          echo "CC=/usr/bin/clang-${{ env.LLVM_VERSION }}" >> "$GITHUB_ENV"
+          echo "CXX=/usr/bin/clang++-${{ env.LLVM_VERSION }}" >> "$GITHUB_ENV"
 
       - name: Setup GCC ${{ env.GCC_VERSION }} as compiler
         if: matrix.compiler == 'gcc'
@@ -83,27 +68,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
 
-          sudo update-alternatives --install /usr/bin/gcc gcc \
-            /usr/bin/gcc-${{ env.GCC_VERSION }} 100
-          sudo update-alternatives --install /usr/bin/g++ g++ \
-            /usr/bin/g++-${{ env.GCC_VERSION }} 100
+          echo "CC=/usr/bin/gcc-${{ env.GCC_VERSION }}" >> "$GITHUB_ENV"
+          echo "CXX=/usr/bin/g++-${{ env.GCC_VERSION }}" >> "$GITHUB_ENV"
 
       - name: Verify toolchain
         run: |
           echo "=== Compiler ==="
-          ${{ matrix.cxx }} --version
+          "$CXX" --version
           echo "=== Clang Tools ==="
-          clang-format --version
-          clang-tidy --version
+          /usr/bin/clang-format-${{ env.LLVM_VERSION }} --version
+          /usr/bin/clang-tidy-${{ env.LLVM_VERSION }} --version
 
       # ===== CMake Configure / Build / Test =====
       - name: Configure
         run: |
           cmake --preset ${{ matrix.preset }} \
-            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
-            -DCLANG_FORMAT_EXE="$(command -v clang-format-${{ env.LLVM_VERSION }})" \
-            -DCLANG_TIDY_EXE="$(command -v clang-tidy-${{ env.LLVM_VERSION }})" \
+            -DCMAKE_C_COMPILER="$CC" \
+            -DCMAKE_CXX_COMPILER="$CXX" \
+            -DCLANG_FORMAT_EXE=/usr/bin/clang-format-${{ env.LLVM_VERSION }} \
+            -DCLANG_TIDY_EXE=/usr/bin/clang-tidy-${{ env.LLVM_VERSION }} \
             -DCMAKE_CXX_FLAGS="-Wno-unknown-warning-option -Wno-unused-command-line-argument"
 
       - name: Build
